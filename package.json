@@ -1,7 +1,7 @@
 {
   "name": "action-sync-workflows",
   "description": "Sync workflow files to repositories with a specified topic.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "MelanX",
   "private": true,
   "homepage": "https://github.com/ChaoticTrials/action-sync-workflows",

@@ -54,27 +54,42 @@ async function getReposWithTopic(user: string, org: string, topic: string): Prom
   }
 
   try {
-    let response = await fetch(baseUrl, {
-      method: 'GET',
-      headers
-    });
+    let page = 1;
+    let hasNextPage = true;
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch repositories: ${response.statusText}`);
-    }
+    while (hasNextPage) {
+      let response = await fetch(`${baseUrl}?page=${page}&per_page=100`, {
+        method: 'GET',
+        headers: headers
+      });
 
-    let repos = await response.json();
-
-    // Exclude archived repositories
-    repos = repos.filter((repo: any) => !repo.archived);
-
-    for (let repo of repos) {
-      let repoName: string = repo.name;
-      let topics: string[] = await getRepoTopics(repoName, user || org);
-
-      if (topics.includes(topic)) {
-        reposWithTopic.push(repoName);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch repositories: ${response.statusText}`);
       }
+
+      let repos = await response.json();
+
+      // Exclude archived repositories
+      repos = repos.filter((repo: any) => !repo.archived);
+
+      for (let repo of repos) {
+        let repoName: string = repo.name;
+        let topics: string[] = await getRepoTopics(repoName, user || org);
+
+        if (topics.includes(topic)) {
+          reposWithTopic.push(repoName);
+        }
+      }
+
+      // Check if there are more pages
+      let linkHeader = response.headers.get('link');
+      if (linkHeader) {
+        hasNextPage = /rel="next"/.test(linkHeader);
+      } else {
+        hasNextPage = false;
+      }
+
+      page++;
     }
 
     return reposWithTopic;

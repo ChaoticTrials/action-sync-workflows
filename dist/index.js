@@ -24996,22 +24996,35 @@ async function getReposWithTopic(user, org, topic) {
         throw new Error('Either user or org must be provided.');
     }
     try {
-        let response = await fetch(baseUrl, {
-            method: 'GET',
-            headers
-        });
-        if (!response.ok) {
-            throw new Error(`Failed to fetch repositories: ${response.statusText}`);
-        }
-        let repos = await response.json();
-        // Exclude archived repositories
-        repos = repos.filter((repo) => !repo.archived);
-        for (let repo of repos) {
-            let repoName = repo.name;
-            let topics = await getRepoTopics(repoName, user || org);
-            if (topics.includes(topic)) {
-                reposWithTopic.push(repoName);
+        let page = 1;
+        let hasNextPage = true;
+        while (hasNextPage) {
+            let response = await fetch(`${baseUrl}?page=${page}&per_page=100`, {
+                method: 'GET',
+                headers: headers
+            });
+            if (!response.ok) {
+                throw new Error(`Failed to fetch repositories: ${response.statusText}`);
             }
+            let repos = await response.json();
+            // Exclude archived repositories
+            repos = repos.filter((repo) => !repo.archived);
+            for (let repo of repos) {
+                let repoName = repo.name;
+                let topics = await getRepoTopics(repoName, user || org);
+                if (topics.includes(topic)) {
+                    reposWithTopic.push(repoName);
+                }
+            }
+            // Check if there are more pages
+            let linkHeader = response.headers.get('link');
+            if (linkHeader) {
+                hasNextPage = /rel="next"/.test(linkHeader);
+            }
+            else {
+                hasNextPage = false;
+            }
+            page++;
         }
         return reposWithTopic;
     }
