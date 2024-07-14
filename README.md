@@ -35,12 +35,12 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Sync Workflow Files
-        uses: your-username/your-repo@main
+        uses: ChaoticTrials/action-sync-workflows@v1
         with:
           user: 'your-username'
           org: 'your-org'
           topic: 'your-topic'
           directory: '.github/workflows'
           prefix: '[Sync]'
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 ```
