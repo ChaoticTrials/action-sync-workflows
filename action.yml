@@ -1,0 +1,27 @@
+name: 'action-sync-workflows'
+description: 'Sync workflow files to repositories with a specified topic'
+author: 'MelanX'
+
+inputs:
+  user:
+    description: 'GitHub username to fetch repositories from. Either user or org must be provided.'
+    required: false
+  org:
+    description: 'GitHub organization name to fetch repositories from. Either user or org must be provided.'
+    required: false
+  topic:
+    description: 'The topic to filter repositories by.'
+    required: true
+  directory:
+    description: 'The directory containing workflow files to sync.'
+    required: true
+  prefix:
+    description: 'Optional commit message prefix.'
+    required: false
+  token:
+    description: 'GitHub token for authentication.'
+    required: true
+
+runs:
+  using: node20
+  main: dist/index.js
